@@ -1,8 +1,18 @@
 from fastapi import FastAPI, Query
+from fastapi import FastAPI, Header, HTTPException, Request
 from pymongo import MongoClient
 from bson import ObjectId
 
 app = FastAPI()
+
+API_KEY = "faishion-n32tb2gnsgkasgi332gn2gskgnvzl"  # set your secret key here
+
+@app.middleware("http")
+async def verify_api_key(request: Request, call_next):
+    key = request.headers.get("x-api-key")
+    if key != API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid API Key")
+    return await call_next(request)
 
 # Connect to MongoDB
 MONGO_URI = "mongodb+srv://faishion:faishion@us-west-aws.t1dyqdx.mongodb.net/?retryWrites=true&w=majority"
